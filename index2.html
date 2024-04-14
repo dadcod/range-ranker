@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tier List Maker</title>
+    <style>
+      body,
+      html {
+        font-family: Arial, sans-serif;
+        padding: 10px;
+      }
+
+      h1 {
+        text-align: center;
+      }
+
+      .container {
+        display: flex;
+        justify-content: space-around;
+      }
+
+      .tier {
+        border: 2px solid #ccc;
+        padding: 10px;
+        width: 200px;
+        min-height: 200px;
+        position: relative;
+      }
+
+      .tier h2 {
+        text-align: center;
+      }
+
+      .item {
+        padding: 5px;
+        margin: 5px;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        cursor: pointer;
+      }
+
+      .item:active {
+        opacity: 0.5;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Tier List Maker</h1>
+    <div class="container">
+      <div id="items" class="tier">
+        <h2>Items</h2>
+        <div draggable="true" class="item">Item 1</div>
+        <div draggable="true" class="item">Item 2</div>
+        <div draggable="true" class="item">Item 3</div>
+      </div>
+      <div id="tierS" class="tier">
+        <h2>S Tier</h2>
+      </div>
+      <div id="tierA" class="tier">
+        <h2>A Tier</h2>
+      </div>
+      <div id="tierB" class="tier">
+        <h2>B Tier</h2>
+      </div>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const items = document.querySelectorAll(".item");
+        const tiers = document.querySelectorAll(".tier");
+
+        items.forEach((item) => {
+          item.addEventListener("dragstart", dragStart);
+          item.addEventListener("dragend", dragEnd);
+        });
+
+        tiers.forEach((tier) => {
+          tier.addEventListener("dragover", dragOver);
+          tier.addEventListener("dragenter", dragEnter);
+          tier.addEventListener("dragleave", dragLeave);
+          tier.addEventListener("drop", dragDrop);
+        });
+
+        function dragStart(e) {
+          e.dataTransfer.setData("text/plain", e.target.id);
+          setTimeout(() => (this.className = "invisible"), 0);
+        }
+
+        function dragEnd() {
+          this.className = "item";
+        }
+
+        function dragOver(e) {
+          e.preventDefault();
+        }
+
+        function dragEnter(e) {
+          e.preventDefault();
+          this.className += " hovered";
+        }
+
+        function dragLeave() {
+          this.className = "tier";
+        }
+
+        function dragDrop(e) {
+          this.className = "tier";
+          const id = e.dataTransfer.getData("text/plain");
+          const draggable = document.getElementById(id);
+          this.append(draggable);
+        }
+      });
+    </script>
+  </body>
+</html>
