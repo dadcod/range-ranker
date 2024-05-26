@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/10.1.2/gridstack-all.min.js"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/10.1.2/gridstack.min.css"
+      rel="stylesheet"
+    />
+    <style type="text/css">
+      .grid-stack {
+        background: #fafad2;
+      }
+      .grid-stack-item-content {
+        background-color: #18bc9c;
+        align-items: center;
+      }
+      .container {
+      }
+      .grid-wrapper {
+        margin: 10px;
+        border: 1px solid #000;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <button id="add-item">Add Item</button>
+      <button id="add-row">Add row</button>
+      <div class="grid-wrapper">
+        <div class="ranker"></div>
+      </div>
+      <div class="grid-wrapper">
+        <div class="pool"></div>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      document.addEventListener("DOMContentLoaded", function () {
+        var granularityMultiplier = 2;
+        var rows = [
+          {
+            x: 0,
+            y: 0,
+            w: 2,
+            h: 2,
+            content: "row 1",
+            noMove: true,
+            noResize: true,
+            locked: true,
+          },
+          {
+            x: 0,
+            y: 2,
+            w: 2,
+            h: 2,
+            content: "row 2",
+            noMove: true,
+            noResize: true,
+            locked: true,
+          },
+        ];
+        function addRow() {
+          var node = {
+            x: 0,
+            y: rows.length * granularityMultiplier,
+            w: 2,
+            h: 2,
+            noMove: true,
+            noResize: true,
+            locked: true,
+          };
+          rows.push(node);
+          rankerGrid.update({ maxRow: rows.length * granularityMultiplier });
+          rankerGrid.addWidget(
+            '<div><div class="grid-stack-item-content">New Item</div></div>',
+            node
+          );
+        }
+
+        var items = [];
+        var rankerGrid = GridStack.init(
+          {
+            resizable: { handles: "s, n" },
+            margin: 5,
+            float: true,
+            acceptWidgets: true,
+            removable: true,
+          },
+          ".ranker"
+        );
+        rankerGrid.load([...items, ...rows]);
+
+        let id = 0;
+        var pool = [{ x: 0, y: 0, w: 2, h: 2, content: "pool 1", id: id++ }];
+        var poolGrid = GridStack.init(
+          {
+            resizable: { handles: "s, n" },
+            margin: 5,
+            float: true,
+            removable: true,
+          },
+          ".pool"
+        );
+        poolGrid.load(pool);
+
+        document
+          .getElementById("add-item")
+          .addEventListener("click", function () {
+            var row =
+              Math.trunc(
+                (poolGrid.getGridItems().length * granularityMultiplier) /
+                  poolGrid.getColumn()
+              ) * granularityMultiplier;
+            console.log(row);
+            var col =
+              (poolGrid.getGridItems().length * granularityMultiplier) %
+              poolGrid.getColumn();
+            console.log(col);
+            var node = {
+              x: col,
+              y: row,
+              w: 2,
+              h: 2,
+              id: id++,
+            };
+            poolGrid.addWidget(
+              `<div><div class="grid-stack-item-content">New Item ${id}</div></div>`,
+              node
+            );
+          });
+        document.getElementById("add-row").addEventListener("click", addRow);
+
+        function getRankerGridElement() {
+          return document.querySelector(".ranker");
+        }
+        function getPoolGridElement() {
+          return document.querySelector(".pool");
+        }
+        rankerGrid.on("removed", function (event, items) {
+          console.log("removed", items);
+          const derka = `<div>${items[0].el.innerHTML}</div>`;
+          poolGrid.addWidget(derka, {
+            x: 0,
+            y: 0,
+            w: 2,
+            h: 2,
+          });
+          poolGrid.compact();
+        });
+
+        // Function to set the background grid lines dynamically
+        function setGridLines(gridElement, cellWidth, cellHeight) {
+          gridElement.style.backgroundSize = `${cellWidth}px ${cellHeight}px`;
+          gridElement.style.backgroundImage = `linear-gradient(to right, lightgray 1px, transparent 1px),
+                                              linear-gradient(to bottom, lightgray 1px, transparent 1px)`;
+        }
+
+        // Use MutationObserver to detect changes in the grid container
+        var observerConfig = {
+          attributes: true,
+          childList: true,
+          subtree: true,
+        };
+
+        var observer = new MutationObserver(function (
+          [gridContainer1, gridContainer2],
+          observer
+        ) {
+          setGridLines(
+            getRankerGridElement(),
+            rankerGrid.cellWidth(),
+            rankerGrid.getCellHeight()
+          );
+          setGridLines(
+            getPoolGridElement(),
+            poolGrid.cellWidth(),
+            poolGrid.getCellHeight()
+          );
+        });
+
+        observer.observe(getPoolGridElement(), observerConfig);
+        observer.observe(getRankerGridElement(), observerConfig);
+
+        rankerGrid.on("added", function () {
+          setGridLines(getRankerGridElement(), rankerGrid.getCellHeight());
+        });
+
+        poolGrid.on("added", function () {
+          setGridLines(getPoolGridElement(), poolGrid.getCellHeight());
+        });
+      });
+    </script>
+  </body>
+</html>
