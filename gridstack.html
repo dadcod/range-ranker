@@ -27,13 +27,19 @@
   </head>
   <body>
     <div class="container">
-      <button id="add-item">Add Item</button>
-      <button id="add-row">Add row</button>
-      <div class="grid-wrapper">
-        <div class="ranker"></div>
+      <div class="controls">
+        <button id="add-item">Add Item</button>
+        <button id="add-row">Add row</button>
+        <label for="granularity">Grid granularity</label>
+        <input id="granularity" type="number" max="10" />
       </div>
-      <div class="grid-wrapper">
-        <div class="pool"></div>
+      <div class="grids-container">
+        <div class="grid-wrapper">
+          <div class="ranker"></div>
+        </div>
+        <div class="grid-wrapper">
+          <div class="pool"></div>
+        </div>
       </div>
     </div>
 
@@ -44,8 +50,8 @@
           {
             x: 0,
             y: 0,
-            w: 2,
-            h: 2,
+            w: granularityMultiplier,
+            h: granularityMultiplier,
             content: "row 1",
             noMove: true,
             noResize: true,
@@ -53,9 +59,9 @@
           },
           {
             x: 0,
-            y: 2,
-            w: 2,
-            h: 2,
+            y: granularityMultiplier,
+            w: granularityMultiplier,
+            h: granularityMultiplier,
             content: "row 2",
             noMove: true,
             noResize: true,
@@ -66,8 +72,8 @@
           var node = {
             x: 0,
             y: rows.length * granularityMultiplier,
-            w: 2,
-            h: 2,
+            w: granularityMultiplier,
+            h: granularityMultiplier,
             noMove: true,
             noResize: true,
             locked: true,
@@ -94,7 +100,16 @@
         rankerGrid.load([...items, ...rows]);
 
         let id = 0;
-        var pool = [{ x: 0, y: 0, w: 2, h: 2, content: "pool 1", id: id++ }];
+        var pool = [
+          {
+            x: 0,
+            y: 0,
+            w: granularityMultiplier,
+            h: granularityMultiplier,
+            content: "pool 1",
+            id: id++,
+          },
+        ];
         var poolGrid = GridStack.init(
           {
             resizable: { handles: "s, n" },
@@ -122,8 +137,8 @@
             var node = {
               x: col,
               y: row,
-              w: 2,
-              h: 2,
+              w: granularityMultiplier,
+              h: granularityMultiplier,
               id: id++,
             };
             poolGrid.addWidget(
@@ -145,8 +160,8 @@
           poolGrid.addWidget(derka, {
             x: 0,
             y: 0,
-            w: 2,
-            h: 2,
+            w: granularityMultiplier,
+            h: granularityMultiplier,
           });
           poolGrid.compact();
         });
